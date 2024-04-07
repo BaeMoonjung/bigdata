@@ -5,16 +5,23 @@ import numpy as np
 model = joblib.load('dm_model.pkl')
 scaler = joblib.load('dm_scaler.pkl')
 
+options_sex =['여자', '남자']
+options_smoke = ['비흡연자', '흡연자']
+options_exercise = ['아니오', '예']
+
 st.title("당뇨 예측 모델")
 
 height = st.number_input('키를 입력하세요(cm).')
 weight = st.number_input('몸무게를 입력하시오(kg)')
-smoke = st.number_input('흡연 여부를 입력하세요. 비흡연이면 0, 흡연자이면 1을 입력하세요.')
-sex = st.number_input('성별을 입력하세요. 여자면 0, 남자면 1을 입력하세요.')
+smoke = st.radio('흡연 여부를 입력하시오.',options_smoke, index=0)
+sex = st.radio('성별을 입력하세요.',options_sex, index=0)
 age = st.number_input('나이를 입력하시오.')
-exercise = st.number_input('지난 30일 이내에 직업 이외에 숨치 찰 정도의 운동을 규칙적으로 하였습니까? 하지 않았으면 0, 하였으면 1을 입력 하세요.')
+exercise = st.radio('지난 30일 이내에 직업 이외에 숨치 찰 정도의 운동을 규칙적으로 하였습니까?.',options_exercise, index=0)
 
 bmi = 0
+selected_sex = options_sex.index(sex)
+selected_smoke = options_smoke.index(smoke)
+selected_exercise = options_exercise.index(exercise)
 
 if height != 0:
     bmi = weight/(height/100)**2
@@ -48,11 +55,10 @@ elif 80 <= age:
 else:
     age_calc = 1
 
-my_array = np.array([bmi, smoke, sex, age_calc, exercise])
+my_array = np.array([bmi, selected_smoke, selected_sex, age_calc, selected_exercise])
 my_array = my_array.reshape(-1, 5)
 
 my_scaled_array = scaler.transform(my_array)
-
 my_result = model.predict(my_scaled_array)
 
 if my_result == 0:
